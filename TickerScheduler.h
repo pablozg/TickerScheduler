@@ -61,9 +61,10 @@ struct TickerSchedulerItem
     Ticker t;
     volatile bool flag = false;
     tscallback_t cb;
-	void * cb_arg;
+		void * cb_arg;
     uint32_t period;
     volatile bool is_used = false;
+    volatile bool	is_running = false;
 };
 
 class TickerScheduler
@@ -86,6 +87,7 @@ public:
     void enableAll();
     void disableAll();
     void update();
+    bool isRunning(uint8_t i);
 };
 
 #endif

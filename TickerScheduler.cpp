@@ -47,6 +47,7 @@ bool TickerScheduler::add(uint8_t i, uint32_t period, tscallback_t f, void* arg,
     this->items[i].flag = shouldFireNow;
     this->items[i].period = period;
     this->items[i].is_used = true;
+    this->items[i].is_running = false;
 
     enable(i);
 
@@ -62,6 +63,7 @@ bool TickerScheduler::remove(uint8_t i)
     this->items[i].t.detach();
     this->items[i].flag = false;
     this->items[i].cb = NULL;
+    this->items[i].is_running = false;
 
     return true;
 }
@@ -72,6 +74,7 @@ bool TickerScheduler::disable(uint8_t i)
         return false;
 
     this->items[i].t.detach();
+    this->items[i].is_running = false;
 
     return true;
 }
@@ -81,10 +84,16 @@ bool TickerScheduler::enable(uint8_t i)
     if (i >= this->size || !this->items[i].is_used)
         return false;
 
-	volatile bool * flag = &this->items[i].flag;
-	this->items[i].t.attach_ms(this->items[i].period, TickerScheduler::handleTickerFlag, flag);
+		volatile bool * flag = &this->items[i].flag;
+		this->items[i].t.attach_ms(this->items[i].period, TickerScheduler::handleTickerFlag, flag);
+		this->items[i].is_running = true;
 
     return true;
+}
+
+bool TickerScheduler::isRunning(uint8_t i)
+{
+	return this->items[i].is_running;
 }
 
 void TickerScheduler::disableAll()
